@@ -1372,24 +1372,38 @@ def generate_qc_summary(session_path, qc_session_path, html_report_path):
                 'fd_val': fd_val, 'aor_val': aor_val, 'aqi_val': aqi_val, 'gsr_x': gsr_x, 'gsr_y': gsr_y
             }
 
+            def format_value(value):
+                if value == 'N/A':
+                    return 'N/A'
+                try: 
+                    return f"{float(value):.5f}"
+                except ValueError:
+                    return str(value) 
+
             # Generate HTML report for each bold file - Simplified HTML table for quantitative metrics
             html_file.write(f"<h3>{base_name}.nii.gz</h3>\n")
             html_file.write("<table border='1' style='border-collapse: collapse; width: 50%;'>\n")
             html_file.write("<tr><th>Measure</th><th>Value</th></tr>\n")
-            html_file.write(f"<tr><td>Mean Framewise Displacement (FD)</td><td>{fd_val:.5f}</td></tr>\n")
-            html_file.write(f"<tr><td>Mean Outlier Vox-to-Vol Fraction (AOR)</td><td>{aor_val:.5f}</td></tr>\n")
-            html_file.write(f"<tr><td>Mean Distance to Median Volume (AQI)</td><td>{aqi_val:.5f}</td></tr>\n")
-            html_file.write(f"<tr><td>Ghost to Signal Ratio (GSR) - X</td><td>{gsr_x:.5f}</td></tr>\n")
-            html_file.write(f"<tr><td>Ghost to Signal Ratio (GSR) - Y</td><td>{gsr_y:.5f}</td></tr>\n")
+            html_file.write(f"<tr><td>Mean Framewise Displacement (FD)</td><td>{format_value(fd_val)}</td></tr>\n")
+            html_file.write(f"<tr><td>Mean Outlier Vox-to-Vol Fraction (AOR)</td><td>{format_value(aor_val)}</td></tr>\n")
+            html_file.write(f"<tr><td>Mean Distance to Median Volume (AQI)</td><td>{format_value(aqi_val)}</td></tr>\n")
+            html_file.write(f"<tr><td>Ghost to Signal Ratio (GSR) - X</td><td>{format_value(gsr_x)}</td></tr>\n")
+            html_file.write(f"<tr><td>Ghost to Signal Ratio (GSR) - Y</td><td>{format_value(gsr_y)}</td></tr>\n")
             html_file.write("</table>\n")
 
             fd_threshold = 0.3
-            fd_result_paragraph = "<p>Result: Mean FD Motion within acceptable thresholds.</p>"  # Simplified result message
-            if fd_val != 'N/A' and fd_val > fd_threshold:  # Check if fd_val is valid and exceeds threshold
-                fd_result_paragraph = "<p>Result: Mean FD Motion EXCEEDS acceptable thresholds (&lt;0.3mm).</p>" # Simplified result message
+            fd_result_paragraph = "" 
+
+            if fd_val == 'N/A':
+                fd_result_paragraph = "<p>Result: Framewise Displacement (FD) calculation was not available.</p>"
+            elif fd_val != 'N/A' and fd_val > fd_threshold:  # Check if fd_val is valid and exceeds threshold
+                fd_result_paragraph = "<p>Result: Mean FD Motion EXCEEDS acceptable thresholds (&lt;0.3mm).</p>"
+            else: # Implies fd_val is not 'N/A' and not exceeding threshold (or equal or less than threshold)
+                fd_result_paragraph = "<p>Result: Mean FD Motion within acceptable thresholds.</p>"
+
             html_file.write(f"{fd_result_paragraph}\n")
             html_file.write("<br>\n") # added line break between bold files
-
+            
         functional_qc_data_python['func'] = functional_qc_data_modality  # Store under 'func' modality
 
         html_file.write("</table>\n") # Quantitative and Qualitative Summary - Table end
