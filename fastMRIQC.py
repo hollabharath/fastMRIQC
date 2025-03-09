@@ -418,7 +418,7 @@ def process_dwi_modality(session_path, qc_session_path, html_report_path):
                 plotting.plot_stat_map(
                     volume_img,  # Plot the 3D volume directly from iter_img
                     bg_img=None,
-                    cut_coords=[mid_sag,mid_cor,mid_axi],  # Middle slices for this volume
+                    #cut_coords=[mid_sag,mid_cor,mid_axi],  # Middle slices for this volume
                     cut_coords=None,
                     #display_mode='ortho',
                     title=f'DWI Vol {vol_index}',  
