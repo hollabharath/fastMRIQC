@@ -1075,7 +1075,14 @@ def process_mefmri_modality(session_path, qc_session_path, html_report_path):
             confounds_df[rmse_columns].to_csv(confounds_1d_file, sep=' ', header=False, index=False)
 
             rmse_plot_prefix = os.path.join(qc_task_run_session_path, f"{task_run_base_name}_rmse_plot.png") # Path for task/run
-
+            plot1d_cmd = [
+                "1dplot.py",
+                "-one_graph", "-legend_on", "-legend_labels", "2", "25", "50", "75", "98", "-reverse_order",
+                "-infiles", confounds_1d_file,
+                "-xlabel", "vols",
+                "-title", f"RMSE centiles: {task_name}, Run: {run_num}", # Title updated for task/run
+                "-prefix", rmse_plot_prefix
+            ]
 
             subprocess.run(plot1d_cmd, check=True)
 
